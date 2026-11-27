@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0f2340">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<title>SESI · Desempenho dos Departamentos Regionais</title>
+<style>
+:root{
+  --side:#0f2340; --side-2:#16305a; --side-ink:#c9d6ea; --side-ink-2:#8ea3c4; --accent:#3fa7ff;
+  --bg:#f5f7fa; --surface-1:#ffffff; --line:#e4e8ee; --grid:#eceff3;
+  --text-primary:#18212f; --text-secondary:#5b6677; --text-3:#8a94a3;
+  --s1:#257de0; --s2:#f47230; --s3:#00b894; --s4:#f2a600; --s5:#ee7fac; --nat:#18212f;
+  --good:#0aac23; --warning:#fbb315; --serious:#f18a59; --critical:#dc3c3d;
+  --div-neg:#d64545; --div-mid:#eef0f3; --div-pos:#2370cd;
+  --radius:12px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text-primary);font-size:15px;line-height:1.55}
+/* ---------- layout ---------- */
+.side{position:fixed;inset:0 auto 0 0;width:268px;background:var(--side);color:var(--side-ink);display:flex;flex-direction:column;z-index:20}
+.brand{padding:22px 22px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.brand .k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--side-ink-2)}
+.brand .t{font-size:17px;font-weight:700;color:#fff;margin-top:4px;line-height:1.25}
+.brand .s{font-size:12px;color:var(--side-ink-2);margin-top:6px}
+nav{padding:10px 10px;overflow:auto;flex:1}
+nav a{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:8px;color:var(--side-ink);text-decoration:none;font-size:14px;margin:1px 0}
+nav a .n{font-size:11px;color:var(--side-ink-2);width:18px;font-variant-numeric:tabular-nums}
+nav a:hover{background:var(--side-2)}
+nav a.on{background:var(--side-2);color:#fff;box-shadow:inset 3px 0 0 var(--accent)}
+nav .grp{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--side-ink-2);padding:14px 12px 4px}
+.side .foot{padding:14px 22px;font-size:11.5px;color:var(--side-ink-2);border-top:1px solid rgba(255,255,255,.08)}
+main{margin-left:268px;min-height:100vh}
+.topbar{display:none}
+section.page{display:none;padding:34px 42px 60px;max-width:1360px;margin:0 auto}
+section.page.on{display:block;animation:f .25s ease}
+@keyframes f{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--s1);font-weight:600}
+h1{font-size:30px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+h2{font-size:19px;margin:0 0 4px}
+h3{font-size:15.5px;margin:0 0 6px}
+.lead{font-size:16.5px;color:var(--text-secondary);margin:0 0 24px}
+p{margin:0 0 10px}
+main p,main li,main .note{text-align:justify;text-justify:inter-word;hyphens:manual}
+main h1,main h2,main h3{text-align:left;hyphens:manual}
+.muted{color:var(--text-secondary)}
+.small{font-size:13px}
+.card{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px}
+.card + .card{margin-top:18px}
+.grid > .card{margin-top:0}
+.hm{table-layout:fixed}.hm th.rl{width:230px}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.mt{margin-top:18px}
+.kpi .v{font-size:32px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:13px;color:var(--text-secondary)}
+.kpi .d{font-size:12.5px;color:var(--text-3);margin-top:6px}
+.find{display:flex;gap:14px}
+.find .ic{flex:0 0 34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:15px;background:#eaf2fd;color:var(--s1)}
+.find p{font-size:14px}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--text-secondary);white-space:nowrap}
+.tag.crit{color:#a42324;border-color:#f3c3c3;background:#fdf0f0}
+.tag.ser{color:#9a4a1c;border-color:#f6d2bd;background:#fef4ee}
+.tag.warn{color:#7a5800;border-color:#f6e1a8;background:#fff9e8}
+.tag.good{color:#11651f;border-color:#bfe6c5;background:#effaf1}
+.tag.blue{color:#174c8f;border-color:#c5dbf6;background:#eef5fe}
+.note{border-left:3px solid var(--warning);background:#fffaec;padding:10px 14px;border-radius:6px;font-size:13.5px;color:#5a4a1a}
+.note.info{border-color:var(--s1);background:#f0f6fe;color:#1c3d66}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px}
+.seg{display:inline-flex;background:#eef1f5;border-radius:9px;padding:3px}
+.seg button{border:0;background:transparent;padding:6px 12px;border-radius:7px;font:inherit;font-size:13px;color:var(--text-secondary);cursor:pointer}
+.seg button.on{background:#fff;color:var(--text-primary);box-shadow:0 1px 2px rgba(0,0,0,.08);font-weight:600}
+select{font:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--text-primary)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--text-secondary);margin:6px 0 4px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.legend i.ln{height:3px;border-radius:2px;width:16px;vertical-align:3px}
+/* heatmap */
+.hm{width:100%;border-collapse:separate;border-spacing:2px;font-size:12.5px}
+.hm th{font-weight:600;color:var(--text-secondary);font-size:12px;padding:4px 6px;text-align:center}
+.hm th.rl{text-align:left;font-weight:500;color:var(--text-primary);white-space:normal;line-height:1.25;padding-right:10px}
+.hm td{text-align:center;padding:7px 4px;border-radius:5px;font-variant-numeric:tabular-nums;cursor:default;min-width:64px}
+.hm tr.grp th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);padding-top:12px}
+.hm td.nat{box-shadow:inset 0 0 0 1px #c9d0da}
+.hm td.dim{opacity:.22}.hm td.foc{box-shadow:0 0 0 3px #18212f;position:relative;z-index:1;font-weight:700}
+table.cal.hyp-t td,table.cal.hyp-t td:first-child{white-space:normal;overflow-wrap:break-word}
+.golink{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:8px 14px;border-radius:8px;background:var(--side);color:#fff;text-decoration:none;font-size:13px;font-weight:600}.golink:hover{background:var(--side-2)}
+.golink.sec{background:#fff;color:var(--side);border:1px solid #c9d0da}
+#hm-focus button{margin-left:10px;border:1px solid #9cc0ee;background:#fff;color:#174c8f;border-radius:6px;padding:3px 10px;font:inherit;font-size:12.5px;cursor:pointer}
+.hm td.fl{background:repeating-linear-gradient(45deg,#f3f4f6 0 5px,#e7e9ed 5px 7px);color:var(--text-secondary);font-size:11px}
+.ramp{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary)}
+.ramp .bar{width:220px;height:10px;border-radius:5px}
+/* typology */
+.ty td{font-size:11px;font-weight:600;line-height:1.2;padding:8px 4px}
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-size:12px;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--line);padding:8px 8px;cursor:pointer;white-space:nowrap;position:sticky;top:0;background:#fff}
+.tbl td{border-bottom:1px solid var(--grid);padding:7px 8px;font-variant-numeric:tabular-nums}
+.tbl td.r,.tbl th.r{text-align:right}
+.scroll{max-height:620px;overflow:auto}
+/* charts */
+svg text{font-family:inherit}
+.chart{width:100%;display:block}
+.tip{position:fixed;pointer-events:none;background:#101826;color:#fff;font-size:12.5px;padding:8px 10px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.2);z-index:99;opacity:0;transition:opacity .08s;max-width:300px;line-height:1.45}
+.tip b{font-weight:600}
+.tip .row{display:flex;justify-content:space-between;gap:16px}
+/* tree */
+.tree{display:grid;grid-template-columns:240px 1fr;gap:0 22px}
+.tree .root{grid-row:1/span 4;background:var(--side);color:#fff;border-radius:12px;padding:18px;align-self:stretch;display:flex;flex-direction:column;justify-content:center}
+.tree .root b{font-size:16px}
+.branch{border:1px solid var(--line);border-radius:12px;background:#fff;padding:16px 18px;margin-bottom:14px;position:relative}
+.branch::before{content:"";position:absolute;left:-23px;top:26px;width:22px;height:2px;background:#c9d0da}
+.branch h3 .bn{display:inline-block;background:#eef5fe;color:var(--s1);border-radius:6px;padding:0 7px;margin-right:8px;font-size:12.5px}
+.hyp{display:grid;grid-template-columns:44px 1fr 1fr 110px;gap:10px;padding:10px 0;border-top:1px solid var(--grid);font-size:13.5px}
+.hyp:first-of-type{border-top:0}
+.hyp .id{font-weight:700;color:var(--text-secondary)}
+.hyp .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);display:block}
+/* governance */
+.tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tier{border-radius:12px;padding:16px;border:1px solid var(--line);background:#fff;position:relative;overflow:hidden}
+.tier::before{content:"";position:absolute;inset:0 0 auto 0;height:4px}
+.tier.t1::before{background:var(--good)} .tier.t2::before{background:var(--warning)} .tier.t3::before{background:var(--serious)} .tier.t4::before{background:var(--critical)}
+.tier .lvl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);font-weight:600}
+.tier h3{margin:4px 0 8px}
+.tier ul{margin:8px 0 0;padding-left:18px;font-size:13px}
+.tier .crit{font-size:12.5px;background:#f6f8fb;border-radius:8px;padding:8px 10px;color:var(--text-secondary)}
+.flow{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;align-items:stretch}
+.step{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;position:relative;font-size:13px}
+.step .no{width:26px;height:26px;border-radius:50%;background:var(--side);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;margin-bottom:8px}
+.step:not(:last-child)::after{content:"›";position:absolute;right:-10px;top:50%;transform:translateY(-50%);color:#9aa6b6;font-size:22px;font-weight:700}
+.cal{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+.cal th,.cal td{padding:10px 12px;border-bottom:1px solid var(--grid);vertical-align:top;text-align:left}
+.cal th{font-size:12px;color:var(--text-secondary);font-weight:600}
+.cal td:first-child{font-weight:600;white-space:nowrap}
+.raci td.c{text-align:center;font-weight:700}
+.road{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.road .card h3 span{color:var(--s1)}
+ul.clean{padding-left:18px;margin:6px 0}
+ul.clean li{margin:4px 0}
+.case{display:grid;grid-template-columns:1fr;gap:6px}
+.case .hd{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.case .ttl{font-weight:700;font-size:15px}
+.case .sub{font-size:12.5px;color:var(--text-secondary)}
+.case .read{font-size:13.5px}
+.formula{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#f3f6fa;border-radius:8px;padding:10px 12px;font-size:13px;overflow:auto}
+/* mobile */
+@media (max-width:1100px){.g4{grid-template-columns:repeat(2,1fr)}.tiers{grid-template-columns:repeat(2,1fr)}.flow{grid-template-columns:repeat(3,1fr)}.step:nth-child(3)::after{display:none}}
+@media (max-width:860px){
+  .side{transform:translateX(-100%);transition:transform .2s;width:84vw;max-width:300px}
+  body.menu .side{transform:none;box-shadow:0 0 0 100vmax rgba(0,0,0,.35)}
+  main{margin-left:0}
+  .topbar{display:flex;position:sticky;top:0;z-index:15;background:var(--side);color:#fff;align-items:center;gap:12px;padding:10px 14px}
+  .topbar button{background:transparent;border:0;color:#fff;font-size:22px;line-height:1;cursor:pointer}
+  .topbar .t{font-weight:600;font-size:14px}
+  section.page{padding:22px 16px 50px}
+  h1{font-size:24px}
+  .g2,.g3,.g4,.road{grid-template-columns:1fr}
+  .tiers{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr}.step::after{display:none}
+  .tree{grid-template-columns:1fr}.tree .root{grid-row:auto;margin-bottom:14px}.branch::before{display:none}
+  .hyp{grid-template-columns:36px 1fr}.hyp>div:nth-child(3),.hyp>div:nth-child(4){grid-column:2}
+  .hm-wrap{overflow-x:auto}
+  .hm{min-width:760px}.hm th.rl{width:170px}
+  .kpi .v{font-size:26px}
+}
+</style>
+</head>
+<body>
+<div class="tip" id="tip"></div>
+<aside class="side">
+  <div class="brand">
+    <div class="k">Processo seletivo</div>
+    <div class="t">SESI · Desempenho dos Departamentos Regionais</div>
+    <div class="s">Atendimento Social · 2022–2026</div>
+  </div>
+  <nav id="nav">
+    <a href="#resumo" data-p="resumo"><span class="n">01</span>Resumo executivo</a>
+    <a href="#mapa" data-p="mapa"><span class="n">02</span>Mapa de execução</a>
+    <a href="#assimetrias" data-p="assimetrias"><span class="n">03</span>Assimetrias</a>
+    <a href="#metas" data-p="metas"><span class="n">04</span>Qualidade das metas</a>
+    <a href="#conclusao" data-p="conclusao"><span class="n">05</span>Conclusão</a>
+    <a href="#explorador" data-p="explorador"><span class="n">06</span>Analítico</a>
+  </nav>
+  <div class="foot">Fonte: Relatórios do Departamento Nacional do SESI · Atendimento Social (2022–2026). Análise: Bárbara J Cruvinel.</div>
+</aside>
+<main>
+<div class="topbar"><button id="hb" aria-label="Abrir menu">☰</button><span class="t">SESI · Desempenho regional</span></div>
+
+<!-- ============ 01 RESUMO ============ -->
+<section class="page" id="p-resumo">
+  <div class="eyebrow">01 · Resumo executivo</div>
+  <h1>O atingimento da meta de cada região é assimétrico, mas, olhando para o acumulado (Brasil), o atingimento fica perto de 100% em quase todos os casos</h1>
+  <p class="lead">Os indicadores finalísticos do Atendimento Social do SESI, por macrorregião, de 2022 a 2026 (previsto × realizado) mostram que o Brasil fecha perto de 100% na maioria dos indicadores. Esse número, porém, é a soma de regiões que erram para os dois lados: algumas executam sistematicamente abaixo da meta, outras superam em 2, 5 ou até 27 vezes.</p>
+  <div class="grid g4" id="kpis"></div>
+  <div class="grid g2 mt">
+    <div class="card"><div class="find"><div class="ic">1</div><div><h3>Os gargalos crônicos estão concentrados</h3><p class="muted">Seis combinações região × indicador ficaram abaixo de 90% em pelo menos 3 anos entre 2022 e 2025. As principais: <b>EJA e Vacinas no Nordeste</b>, <b>Vacinas no Centro-Oeste</b> e <b>Ações comunitárias no Norte</b>. Esta última responde por <b>94%</b> do déficit nacional do indicador.</p></div></div></div>
+    <div class="card"><div class="find"><div class="ic">2</div><div><h3>A média nacional esconde as regiões</h3><p class="muted">Na EJA, o Brasil fica entre 103% e 107% em todos os anos. Mesmo assim, Nordeste e Centro-Oeste não chegam a 93% em nenhum ano. O Sudeste compensa: realizou 5,9× mais em 2025 do que em 2022, enquanto o Nordeste ficou estagnado em cerca de 19 mil matrículas por ano.</p></div></div></div>
+    <div class="card"><div class="find"><div class="ic">3</div><div><h3>As metas não aprendem com o realizado</h3><p class="muted">Em <b id="f-share">—</b> dos casos em que a região superou a meta, a meta do ano seguinte ficou <b>abaixo do que já tinha sido entregue</b>. A elasticidade da meta à execução é de apenas <b>0,24</b>: superar a meta em 100% eleva a meta seguinte em cerca de 18%.</p></div></div></div>
+    <div class="card"><div class="find"><div class="ic">4</div><div><h3>Parte do "gargalo" é meta descolada</h3><p class="muted">No Norte, o indicador Empresas atendidas "caiu" para 26–32% em 2023–24. O realizado, porém, ficou estável (~5,2 mil); o que mudou foi a meta, que quadruplicou. No Sul, o indicador Eventos educativos foi "resolvido" em 2025 cortando a meta de 69 mil para 10 mil.</p></div></div></div>
+  </div>
+
+  <h2 class="mt" style="margin-top:30px">Os casos assimétricos em detalhe</h2>
+  <p class="muted">Consideramos todas as combinações região × indicador × ano de 2022 a 2025 que tiveram meta e entrega: são <b id="as-n">—</b> casos. A distribuição tem caudas longas para os dois lados.</p>
+  <div class="grid g4 mt" id="as-kpis"></div>
+
+  <div class="card mt">
+    <h2>Mediana de execução 2022–25: cada região comparada com o Brasil</h2>
+    <p class="small muted">Cada linha é um indicador. Os círculos são as regiões, o losango preto é o Brasil e a linha vertical marca 100%. O eixo está em escala log, para que 50% e 200% fiquem à mesma distância da meta. As linhas estão ordenadas da maior para a menor distância entre a melhor e a pior região.</p>
+    <div class="legend" id="dr-leg"></div>
+    <div id="dr-chart"></div>
+    <p class="small muted">Três padrões aparecem. <b>Compensação</b>: regiões abaixo e acima da meta se anulam e o Brasil fica muito mais perto de 100% do que as regiões extremas (Eventos educativos, Ações comunitárias, EJA, Vacinas, Empresas atendidas). <b>Superação generalizada</b>: todas as regiões, e o próprio Brasil, ficam muito acima de 100% (Promoção da saúde, Programas de Saúde e Segurança, Educação continuada); aqui o desvio está na meta de todo o país, e não numa região. <b>Aderência</b>: todas as regiões perto de 100% (Educação infantil, Ensino fundamental, Ensino médio).</p>
+  </div>
+
+  <div class="grid g2 mt">
+    <div class="card">
+      <h2>Maiores superações</h2>
+      <p class="small muted">Os casos em que o realizado ficou mais vezes acima da meta, por região e ano.</p>
+      <div class="scroll" style="max-height:none"><table class="tbl" id="as-top"></table></div>
+    </div>
+    <div class="card">
+      <h2>Maiores não-entregas</h2>
+      <p class="small muted">Os casos em que o realizado ficou mais abaixo da meta, por região e ano.</p>
+      <div class="scroll" style="max-height:none"><table class="tbl" id="as-bot"></table></div>
+    </div>
+  </div>
+  <div class="card mt">
+    <h2>Como ler os extremos</h2>
+    <ul class="clean small">
+      <li><b>27 vezes a meta</b>: Eventos educativos no Sudeste em 2023 (meta de 2.610, realizado de 71.682). A meta de 2024 continuou no mesmo patamar (2.070) e a execução repetiu 27×. Uma meta que fica 27 vezes abaixo do entregue por dois anos seguidos não é desempenho excepcional: é meta descolada da operação.</li>
+      <li><b>4 a 15 vezes a meta</b>: Promoção da saúde no Sudeste e no Sul, em todos os anos de 2022 a 2025. A meta cresce, mas sempre muito abaixo do realizado, que fica entre 700 mil e pouco mais de 1 milhão de pessoas por ano nas duas regiões.</li>
+      <li><b>No outro extremo</b>: Ações comunitárias no Norte (30–36% em três anos seguidos) e Empresas atendidas no Norte (26–32% em 2023–24). Aqui o realizado ficou estável, e foi a meta que subiu ou ficou parada num patamar irreal.</li>
+      <li>Nos dois sentidos, o padrão é o mesmo: a distância entre meta e realizado se repete de um ano para o outro. É isso que o Brasil consolidado esconde quando as regiões se compensam.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 03 MAPA ============ -->
+<section class="page" id="p-mapa">
+  <div class="eyebrow">02 · Mapa de execução</div>
+  <h1>Onde cada região entrega acima e abaixo do previsto</h1>
+  <p class="lead">Cada célula mostra a execução de um indicador numa região: realizado ÷ previsto. A cor segue uma escala logarítmica, explicada abaixo do mapa: vermelho abaixo da meta, cinza na meta e azul acima. A coluna Brasil (com contorno) é a soma das regiões. Passe o mouse sobre uma célula para ver previsto e realizado.</p>
+  <div class="note info" id="hm-focus" style="display:none;margin-bottom:14px;scroll-margin-top:16px"></div>
+  <div class="card">
+    <div class="controls"><span class="small muted">Período</span><div class="seg" id="hm-year"></div></div>
+    <div class="ramp"><span>≤ 50%</span><div class="bar" style="background:linear-gradient(90deg,var(--div-neg),var(--div-mid) 50%,var(--div-pos))"></div><span>≥ 200%</span><span style="margin-left:14px" class="tag">▨ sem oferta / sem meta / meta sem entrega</span></div>
+    <div class="hm-wrap mt"><table class="hm" id="hm"></table></div>
+  </div>
+    <div class="note mt" id="hm-note" style="display:none"></div>
+
+  <div class="grid g2 mt">
+    <div class="card">
+      <h2>Como a escala de cor foi construída</h2>
+      <div class="formula">execução = realizado ÷ previsto<br>posição na cor = log₂(execução), limitada entre −1 e +1</div>
+      <p class="small mt" style="margin-top:10px"><b>Passo a passo.</b> Calculo o log na base 2 da execução. Com isso, 100% vira 0 (cinza), 200% vira +1 (azul cheio) e 50% vira −1 (vermelho cheio). Valores além desses extremos ficam com a cor máxima, mas o número escrito na célula é sempre o percentual real.</p>
+      <table class="cal small" style="margin-top:6px">
+        <tr><th>Execução</th><th>log₂</th><th>Cor</th><th>Leitura</th></tr>
+        <tr><td>50%</td><td>−1</td><td><span class="tag crit">vermelho cheio</span></td><td>entregou metade da meta</td></tr>
+        <tr><td>71%</td><td>−0,5</td><td><span class="tag ser">vermelho médio</span></td><td>meta 1,41× o entregue</td></tr>
+        <tr><td>100%</td><td>0</td><td><span class="tag">cinza</span></td><td>na meta</td></tr>
+        <tr><td>141%</td><td>+0,5</td><td><span class="tag blue">azul médio</span></td><td>entrega 1,41× a meta</td></tr>
+        <tr><td>200%</td><td>+1</td><td><span class="tag blue">azul cheio</span></td><td>entregou o dobro da meta</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Por que logarítmica, e não linear</h2>
+      <ul class="clean small">
+        <li><b>Erro de meta é multiplicativo.</b> Entregar 50% da meta e entregar 200% da meta são erros do mesmo tamanho: nos dois casos a meta errou por um fator de 2. Na escala linear, o primeiro fica a 50 pontos de 100% e o segundo a 100 pontos, como se a superação fosse um erro duas vezes maior. No log, os dois ficam à mesma distância do centro (−1 e +1).</li>
+        <li><b>A escala linear seria dominada pelos extremos.</b> A base tem execuções de 2.692% (Eventos educativos no Sudeste) e de 1.493% (Promoção da saúde no Sul). Numa escala linear até esse máximo, quase todas as outras células ficariam com a mesma cor, e diferenças relevantes, como 77% contra 100%, desapareceriam.</li>
+        <li><b>A cor fica simétrica em torno da meta.</b> O cinza marca exatamente 100%, e vermelho e azul têm a mesma intensidade para o mesmo tamanho de erro. Isso permite comparar, no mesmo mapa, o problema de não entregar com o de meta subdimensionada.</li>
+        <li><b>A base 2 facilita a leitura.</b> Cada unidade da escala corresponde a "metade" ou "o dobro" da meta. O limite em ±1 concentra a variação de cor na faixa em que está a maioria dos dados.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card mt">
+    <h2>Sobre os dados deste mapa</h2>
+    <div class="grid g2" style="margin-top:10px">
+      <div>
+        <h3>Situações especiais (ficam fora das medianas)</h3>
+        <p class="small"><span class="tag">— sem oferta</span> previsto e realizado iguais a zero<br><span class="tag warn">∅ sem meta</span> previsto zero, mas com realizado<br><span class="tag crit">0 meta sem entrega</span> previsto positivo e realizado zero</p>
+      </div>
+      <div>
+        <div class="note"><b>2026 é o ano corrente.</b> As leituras estruturais usam 2022–2025; 2026 aparece como sinal de confirmação ou de alerta.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 ASSIMETRIAS ============ -->
+<section class="page" id="p-assimetrias">
+  <div class="eyebrow">03 · Assimetrias</div>
+  <h1>Tipologia de desempenho: o mesmo indicador se comporta de forma oposta entre regiões</h1>
+  <p class="lead">Cada célula classifica uma região × indicador a partir da série 2022–2025, com as regras descritas logo abaixo da matriz. O ano de 2026 ficou fora da classificação por quatro motivos. Primeiro, é o ano corrente, e o realizado pode ainda não estar fechado. Segundo, o Nordeste 2026 não contempla integralmente o 1º trimestre de Pernambuco, o que puxaria a região para baixo por um problema de dado, e não de desempenho. Terceiro, a régua mudou em 2026: a meta de Atendimentos em ações comunitárias foi zerada em todo o país, Eventos educativos no Sul saiu do plano e Educação continuada mudou de nome. Quarto, a regra de gargalo crônico mede persistência e precisa de uma série de anos fechados e comparáveis entre si. 2026 continua no mapa de execução e no gráfico abaixo, como sinal de alerta. A matriz separa três problemas que exigem respostas diferentes: <b>não entrega</b> (vermelho), <b>imprevisibilidade</b> (amarelo) e <b>meta subdimensionada</b> (azul).</p>
+  <div class="card">
+    <div class="legend" id="ty-leg"></div>
+    <div class="hm-wrap"><table class="hm ty" id="ty"></table></div>
+  </div>
+  <div class="card mt">
+    <h2>Como a tipologia foi calculada</h2>
+    <div class="grid g2" style="margin-top:10px">
+      <div>
+        <p class="small">Para cada região × indicador, uso os anos de 2022 a 2025 com meta e entrega. Calculo três medidas:</p>
+        <ul class="clean small">
+          <li><b>Mediana da execução</b>: o nível típico. Usei mediana, e não média, porque um ano extremo (2.692%, por exemplo) puxaria a média sozinho.</li>
+          <li><b>Anos abaixo de 90%</b>: mede a persistência do problema.</li>
+          <li><b>Volatilidade</b>: o desvio-padrão de ln(execução). Mede quanto a execução oscila de um ano para outro. O log faz com que oscilar entre 50% e 100% tenha o mesmo peso que oscilar entre 100% e 200%, pela mesma razão explicada no mapa.</li>
+        </ul>
+        <p class="small muted">As regras são aplicadas na ordem da tabela ao lado: a primeira que a célula atende define a classe. O limite de 90% é a tolerância para considerar a meta cumprida; 115% e 150% separam a superação comum da meta claramente subdimensionada.</p>
+      </div>
+      <table class="cal small">
+        <tr><th>Classe</th><th>Regra</th></tr>
+        <tr><td><span class="tag">· Base insuficiente</span></td><td>menos de 3 anos com meta e entrega</td></tr>
+        <tr><td><span class="tag crit">■ Gargalo crônico</span></td><td>mediana abaixo de 90% e abaixo de 90% em todos os anos menos um, no máximo</td></tr>
+        <tr><td><span class="tag warn">▲ Instável</span></td><td>volatilidade acima de 0,5 (a execução chega a variar perto de 2× entre anos)</td></tr>
+        <tr><td><span class="tag ser">◆ Gargalo recorrente</span></td><td>mediana abaixo de 90%, sem a persistência do crônico</td></tr>
+        <tr><td><span class="tag blue">◎ Meta subdimensionada</span></td><td>mediana acima de 150%</td></tr>
+        <tr><td><span class="tag good">● Aderente</span></td><td>mediana entre 90% e 115%</td></tr>
+        <tr><td><span class="tag blue">○ Superação moderada</span></td><td>mediana entre 115% e 150%</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="grid g2 mt">
+    <div class="card">
+      <h2>Indicadores abaixo de 90%, por região e ano</h2>
+      <p class="small muted">Percentual dos indicadores com meta e entrega que ficaram abaixo de 90% de execução.</p>
+      <div class="legend" id="sc-leg"></div>
+      <div id="sc-chart"></div>
+      <p class="small muted">O Centro-Oeste chega a <b>79%</b> dos indicadores abaixo de 90% em 2026, e já tinha registrado 43% em 2023. Uma queda simultânea em educação, cultura e empresas aponta para uma causa institucional (gestão, orçamento, sistema), e não para um programa específico. O Nordeste 2026 tem a ressalva de Pernambuco.</p>
+    </div>
+    <div class="card">
+      <h2>Efeito compensação: EJA</h2>
+      <p class="small muted">Execução da EJA por região. A linha escura é o Brasil.</p>
+      <div class="legend" id="eja-leg"></div>
+      <div id="eja-chart"></div>
+      <p class="small muted">O Brasil fica sempre acima de 100%, mas Nordeste e Centro-Oeste não alcançam 93% em nenhum ano. Isso acontece porque o <b>Sudeste</b> saiu de 8,8 mil matrículas realizadas em 2022 para 51,9 mil em 2025, enquanto o Nordeste ficou estagnado em cerca de 19 mil por ano, com a meta subindo de 21,8 mil para 23,8 mil. Uma meta nacional cumprida não garante entrega territorial.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 METAS ============ -->
+<section class="page" id="p-metas">
+  <div class="eyebrow">04 · Qualidade das metas</div>
+  <h1>A meta do ano seguinte quase não reage ao que foi entregue</h1>
+  <p class="lead">Se a meta é bem planejada, ela deveria aprender com o resultado: subir quando a região entrega muito acima e ficar mais realista quando a região não entrega. Esta seção testa isso com dois cálculos complementares.</p>
+  <div class="grid g4" id="ml-kpis"></div>
+
+  <div class="grid g2 mt">
+    <div class="card">
+      <h2>Cálculo 1 · Meta nova comparada com o que já foi entregue</h2>
+      <div class="formula">razão = meta(t+1) ÷ realizado(t)</div>
+      <p class="small mt" style="margin-top:10px"><b>O que mede.</b> Se a nova meta parte do que a região já entregou. Razão igual a 1 significa que a meta do ano seguinte é igual ao realizado do ano anterior. Abaixo de 1, a meta pede menos do que a região já provou que consegue fazer. Acima de 1, a meta pede mais.</p>
+      <p class="small"><b>Por que comparar com o realizado, e não com a meta anterior.</b> O realizado é a melhor evidência de capacidade. Uma meta que fica abaixo dele depois de uma superação está, por construção, subdimensionada.</p>
+      <p class="small"><b>Exemplo (Norte · Empresas atendidas).</b> Em 2022, a meta foi 4.800 e o realizado, 5.260 (execução de 110%). A meta de 2023 foi 20.809, ou seja, razão de 20.809 ÷ 5.260 = <b>3,96</b>. A meta quadruplicou sobre o que já tinha sido entregue, e a execução de 2023 caiu para 26%, com o realizado praticamente igual (5.514).</p>
+      <p class="small"><b>Base.</b> Todos os pares região × indicador × ano de 2022→2023 até 2025→2026 com meta e realizado positivos: <b>290 pares</b>. A meta de 2026 entra porque já está fixada, mesmo com o ano em curso.</p>
+    </div>
+    <div class="card">
+      <h2>Cálculo 2 · Elasticidade da meta à execução</h2>
+      <div class="formula">ln(meta(t+1) ÷ meta(t)) = a + β × ln(execução(t))</div>
+      <p class="small mt" style="margin-top:10px"><b>O que mede.</b> β indica quanto o crescimento da meta responde à execução do ano anterior.</p>
+      <ul class="clean small">
+        <li><b>β = 1</b>: a meta aprende totalmente. Se a região entregou o dobro, a meta seguinte também dobra. É o que aconteceria se a meta fosse sempre o realizado mais um crescimento fixo, já que, nesse caso, meta(t+1) ÷ meta(t) = execução(t) × (1 + g).</li>
+        <li><b>β = 0</b>: a meta ignora o resultado e cresce o mesmo percentual em qualquer cenário.</li>
+      </ul>
+      <p class="small"><b>Por que usar log nos dois lados.</b> Os indicadores têm escalas muito diferentes (metas de poucas centenas a quase 7 milhões). O log transforma tudo em variação proporcional, torna simétricos os erros para cima e para baixo e faz β ser lido diretamente como elasticidade: 1% a mais de execução gera β% a mais de crescimento da meta.</p>
+      <p class="small"><b>Resultado.</b> <b>β = 0,24</b>, com intervalo de confiança de 95% entre 0,09 e 0,41 (bootstrap com 2.000 reamostragens). Entregar o dobro da meta eleva a meta seguinte em apenas 2<sup>0,24</sup> − 1 ≈ <b>18%</b>. O intercepto indica que, com execução de 100%, a meta cresce cerca de 6% ao ano. O R² é de 0,07: a execução explica só 7% da variação das metas.</p>
+    </div>
+  </div>
+
+  <div class="card mt">
+    <h2>Cada ponto: execução de um ano × razão da meta seguinte</h2>
+    <p class="small muted">No eixo X está a execução no ano <i>t</i>; no eixo Y, a razão do cálculo 1. Os dois eixos estão em escala log, pelas mesmas razões do mapa. Pontos abaixo da linha horizontal (1×) são metas fixadas abaixo do que já tinha sido entregue.</p>
+    <div class="controls"><span class="small muted">Destacar região</span><select id="ml-reg"></select></div>
+    <div id="ml-chart"></div>
+    <p class="small muted">No quadrante inferior direito, a região superou a meta e a meta seguinte ficou abaixo do realizado: é o viés de <b>meta conservadora</b>. No quadrante superior esquerdo, a região não cumpriu e a meta seguinte ficou ainda mais acima do realizado: é a <b>meta irrealista persistente</b>. A nuvem cai da esquerda para a direita, o que mostra a meta "voltando" para perto do patamar anterior em vez de acompanhar a entrega.</p>
+  </div>
+
+  <div class="card mt">
+    <h2>O que isso significa para a leitura do desempenho</h2>
+    <p class="small">Os dois cálculos chegam à mesma conclusão. As metas são <b>incrementais</b>: partem da meta anterior mais um percentual, e não do que foi entregue. A consequência é que o % de execução mistura dois efeitos, o desempenho da região e a qualidade da meta. Uma região com 200% pode estar com a meta baixa, e não com desempenho excepcional; uma região com 30% pode ter recebido uma meta sem lastro. Por isso, antes de comparar regiões pelo atingimento, é preciso calibrar a régua.</p>
+  </div>
+</section>
+
+<!-- ============ CONCLUSAO ============ -->
+<section class="page" id="p-conclusao">
+  <div class="eyebrow">05 · Conclusão</div>
+  <h1>As assimetrias se repetem porque a meta do ano seguinte não é recalibrada pelo que foi entregue</h1>
+  <p class="lead">Os quatro anos analisados mostram que a distância entre meta e realizado é estável: a região que ficou abaixo continua abaixo e a que superou continua superando. O consolidado nacional perto da meta em parte dos indicadores é efeito de compensação entre regiões, e não sinal de que cada região está bem planejada. A causa mais provável está no ciclo de definição de metas, e é nele que o acompanhamento deve atuar.</p>
+
+  <div class="card">
+    <h2>O que os dados mostram</h2>
+    <ul class="clean">
+      <li><b>A assimetria é dos dois lados e é grande.</b> Dos 302 casos região × indicador × ano (2022–25), 38 tiveram realizado de 2× a meta ou mais e 17 ficaram abaixo de 60%. O extremo superior é 27× (Eventos educativos no Sudeste); o inferior, 9% (Ações comunitárias no Sudeste em 2023).</li>
+      <li><b>O consolidado esconde as regiões.</b> Em EJA, Vacinas, Empresas atendidas e Ações comunitárias, o Brasil fica perto de 100% porque regiões abaixo e acima se anulam. Em Promoção da saúde, Programas de Saúde e Segurança e Educação continuada, o próprio Brasil supera muito a meta: o desvio está no planejamento de todas as regiões.</li>
+      <li><b>Os problemas persistem.</b> Seis combinações região × indicador ficaram abaixo de 90% em pelo menos 3 anos entre 2022 e 2025. No outro extremo, dezesseis ficaram com mediana acima de 150%; treze delas de forma estável, classificadas como meta subdimensionada.</li>
+      <li><b>As metas não acompanham o resultado.</b> Em 66% das superações, a meta seguinte ficou abaixo do que já tinha sido entregue; em 68% das não-entregas, a meta seguinte continuou acima do realizado. A elasticidade da meta à execução é de 0,24: entregar o dobro aumenta a meta seguinte em cerca de 18%.</li>
+    </ul>
+  </div>
+
+  <h2 class="mt" style="margin-top:28px">Hipóteses para a causa das assimetrias</h2>
+  <p class="muted">As hipóteses estão em ordem de força da evidência. As três primeiras dizem respeito ao ciclo de metas; a quarta, à execução.</p>
+  <div class="card mt" style="padding:6px 10px">
+    <table class="cal hyp-t" style="table-layout:fixed">
+      <tr><th style="width:30%">Hipótese</th><th style="width:40%">Evidência nos dados</th><th style="width:30%">Como confirmar</th></tr>
+      <tr><td><span class="tag crit">H1 · principal</span><br><b>A meta de t+1 é a meta de t mais um percentual fixo, e não o realizado de t ajustado.</b></td><td>β = 0,24 (intervalo de 95% entre 0,09 e 0,41): a meta quase não reage à execução. Com execução de 100%, a meta cresce cerca de 6% ao ano; o crescimento mediano é de 8%, qualquer que seja o resultado. Por isso a superação de um ano vira a superação do ano seguinte.</td><td>Obter a memória de cálculo das metas de cada Departamento Regional e verificar se a meta parte da meta anterior ou do realizado.</td></tr>
+      <tr><td><span class="tag crit">H2</span><br><b>Mudanças de meta acontecem sem lastro de capacidade.</b></td><td>Empresas atendidas no Norte: a meta foi de 4,8 mil para 20,8 mil em 2023 (razão de 3,96 sobre o realizado), com o realizado estável em ~5,2 mil. A execução "caiu" para 26–32% sem que a entrega mudasse.</td><td>Cruzar as metas com a capacidade instalada (equipes, unidades, convênios) de cada ano.</td></tr>
+      <tr><td><span class="tag ser">H3</span><br><b>Programas mudam de status sem decisão formal sobre a meta.</b></td><td>Ações comunitárias no Norte: meta de ~180 mil mantida de 2022 a 2025, enquanto a entrega caiu de 112 mil para 56 mil. Empréstimos de acervo no Sul: meta zerada em 2025–26 com 100 mil realizados. Eventos educativos no Sul: meta cortada de 69 mil para 10 mil em 2025 e zerada em 2026.</td><td>Levantar com cada região as decisões de expansão, redução ou encerramento de programas e compará-las com a meta registrada.</td></tr>
+      <tr><td><span class="tag warn">H4</span><br><b>Há gargalos reais de execução em EJA e Vacinas no Nordeste e no Centro-Oeste.</b></td><td>Aqui a entrega não alcança a meta mesmo quando ela é estável ou reduzida. A EJA no Nordeste ficou entre 18,5 mil e 19,5 mil por ano (2022–25), sempre abaixo da meta (20,6 mil a 23,8 mil); no Centro-Oeste, o realizado caiu de 8,0 mil para 6,9 mil. Vacinas no Centro-Oeste ficou entre 75% e 95% em todos os anos, mesmo com a meta reduzida de 144 mil para 98 mil.</td><td>Abrir por Departamento Regional e por mês: turmas não abertas × evasão na EJA; calendário de campanhas e adesão das empresas nas Vacinas.</td></tr>
+    </table>
+  </div>
+
+  <h2 class="mt" style="margin-top:28px">Proposta: acompanhar de perto as regiões com pior desempenho</h2>
+  <p class="muted">O acompanhamento parte das hipóteses: primeiro separar o que é meta mal calibrada do que é falha de entrega, e só então comparar desempenho. O Departamento Nacional atua como apoio de método; cada Departamento Regional mantém a decisão sobre como executar.</p>
+  <div class="grid g2 mt">
+    <div class="card">
+      <h3>Quando uma região entra em acompanhamento</h3>
+      <ul class="clean small">
+        <li>Gargalo crônico: abaixo de 90% em pelo menos 3 de 4 anos em algum indicador.</li>
+        <li>Queda sistêmica: 40% ou mais dos indicadores abaixo de 90% no mesmo ano.</li>
+        <li>Meta descolada: meta de t+1 fora da faixa de 0,9 a 1,15 vez o realizado de t, sem justificativa registrada.</li>
+      </ul>
+      <h3 style="margin-top:12px">Quando sai</h3>
+      <p class="small">Dois trimestres seguidos com os indicadores críticos entre 90% e 115% da meta.</p>
+    </div>
+    <div class="card">
+      <h3>Ciclo de acompanhamento</h3>
+      <table class="cal small">
+        <tr><td>Mensal</td><td>Realizado acumulado × meta mensalizada, com alerta automático para os indicadores em acompanhamento.</td></tr>
+        <tr><td>Trimestral</td><td>Reunião de desempenho por região: diagnóstico conjunto (meta ou execução?) e plano de ação de 90 dias.</td></tr>
+        <tr><td>Semestral</td><td>Janela formal de recalibração das metas fora da faixa, com justificativa (responde a H1, H2 e H3).</td></tr>
+        <tr><td>Anual</td><td>Meta de t+1 definida a partir do realizado de t, ajustada pela capacidade instalada.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h2 class="mt" style="margin-top:28px">Onde acompanhar: casos prioritários</h2>
+  <p class="muted">Cada botão abre o Mapa de execução com as células do caso destacadas.</p>
+  <div class="grid g2 mt" id="prio"></div>
+</section>
+
+<!-- ============ 10 EXPLORADOR ============ -->
+<section class="page" id="p-explorador">
+  <div class="eyebrow">06 · Analítico</div>
+  <h1>Base tratada</h1>
+  <p class="lead">Todas as linhas usadas na análise. Filtre e ordene clicando no cabeçalho.</p>
+  <div class="card">
+    <div class="controls"><select id="ex-r"></select><select id="ex-i"></select><select id="ex-a"></select><span class="small muted" id="ex-n"></span></div>
+    <div class="scroll"><table class="tbl" id="ex"></table></div>
+  </div>
+</section>
+</main>
+
+<script src="dados.js"></script>
+<script>
+const D = window.DADOS;
+const REG=['Norte','Nordeste','Centro-Oeste','Sudeste','Sul'];
+const RC={'Norte':'var(--s1)','Nordeste':'var(--s2)','Centro-Oeste':'var(--s3)','Sudeste':'var(--s4)','Sul':'var(--s5)','Brasil':'var(--nat)'};
+const GROUPS=[['Educação',['Educação infantil','Ensino fundamental','Ensino médio','EJA','Educação continuada','Ensino superior','Eventos educativos']],['Saúde e Segurança',['Empresas atendidas','Pessoas atendidas (SST)','Benef. programas SST','Benef. promoção da saúde','Vacinas aplicadas']],['Cultura',['Espectadores de cultura','Consultas a acervo','Empréstimos de acervo']],['Cooperação Social',['Pessoas em ações comunitárias','Atend. ações comunitárias']]];
+const nf=new Intl.NumberFormat('pt-BR'); const pf=x=>x==null?'—':(x*100).toLocaleString('pt-BR',{maximumFractionDigits:0})+'%';
+const pf1=x=>(x*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
+const tip=document.getElementById('tip');
+function showTip(e,h){tip.innerHTML=h;tip.style.opacity=1;const w=tip.offsetWidth,hh=tip.offsetHeight;let x=e.clientX+14,y=e.clientY+14;if(x+w>innerWidth-8)x=e.clientX-w-14;if(y+hh>innerHeight-8)y=e.clientY-hh-14;tip.style.left=x+'px';tip.style.top=y+'px'}
+function hideTip(){tip.style.opacity=0}
+const rec=(a,r,i)=>D.recs.find(x=>x.a===a&&x.r===r&&x.i===i);
+// consultas 2022 regional = data failure
+D.recs.forEach(x=>{if(x.i==='Consultas a acervo'&&x.a===2022&&x.r!=='Brasil'){x.fl='falha_registro'}});
+
+/* ---------- nav ---------- */
+const pages=[...document.querySelectorAll('section.page')];
+function go(id){if(!document.getElementById('p-'+id))id='resumo';pages.forEach(p=>p.classList.toggle('on',p.id==='p-'+id));document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.p===id));document.body.classList.remove('menu');window.scrollTo(0,0);requestAnimationFrame(drawAll)}
+addEventListener('hashchange',()=>go(location.hash.slice(1)));
+document.getElementById('hb').onclick=()=>document.body.classList.toggle('menu');
+document.addEventListener('click',e=>{if(document.body.classList.contains('menu')&&!e.target.closest('.side')&&!e.target.closest('#hb'))document.body.classList.remove('menu')});
+
+/* ---------- color ---------- */
+function lerp(a,b,t){return a.map((v,i)=>Math.round(v+(b[i]-v)*t))}
+const NEG=[214,69,69],MID=[238,240,243],POS=[35,112,205];
+function divColor(e){const v=Math.max(-1,Math.min(1,Math.log2(e)));const c=v<0?lerp(MID,NEG,-v):lerp(MID,POS,v);return{bg:`rgb(${c})`,ink:Math.abs(v)>0.55?'#fff':'#18212f'}}
+
+/* ---------- KPIs ---------- */
+(function(){
+ const s=D.ml_stats; document.getElementById('f-share').textContent=pf(s.share); document.querySelectorAll('.js-share').forEach(e=>e.textContent=pf(s.share));
+ const r25=D.recs.filter(x=>x.a===2025&&x.r!=='Brasil'&&x.fl==='ok');
+ const band=r25.filter(x=>x.e>=.9&&x.e<=1.15).length/r25.length;
+ const chronic=D.typ.filter(t=>t.cls==='Gargalo crônico').length;
+ const sub=D.typ.filter(t=>t.cls==='Meta subdimensionada').length;
+ const K=[[pf(band),'dos indicadores regionais na faixa de 90–115% em 2025','O restante está abaixo ou muito acima da meta'],[chronic,'gargalos crônicos (região × indicador)','Abaixo de 90% em ≥ 3 anos entre 2022 e 2025'],[sub,'casos de meta subdimensionada','Mediana > 150% em 2022–25, de forma estável'],[pf(s.share),'das superações seguidas de meta abaixo do realizado',`n = ${s.n} casos (execução > 100%)`]];
+ document.getElementById('kpis').innerHTML=K.map(k=>`<div class="card kpi"><div class="v">${k[0]}</div><div class="l">${k[1]}</div><div class="d">${k[2]}</div></div>`).join('');
+ const ov=D.ml.filter(p=>p.x>1), un=D.ml.filter(p=>p.x<0.9);
+ const M=[[pf(s.share),'das superações → meta t+1 abaixo do realizado t',''],['0,24','elasticidade da meta à execução','β da regressão log-log'],['+8%','crescimento mediano anual da meta','independente do resultado'],[pf(un.filter(p=>p.y>1).length/un.length),'das não-entregas → meta t+1 ainda acima do realizado',`n = ${un.length} (execução < 90%)`]];
+ document.getElementById('ml-kpis').innerHTML=M.map(k=>`<div class="card kpi"><div class="v">${k[0]}</div><div class="l">${k[1]}</div><div class="d">${k[2]}</div></div>`).join('');
+})();
+
+/* ---------- heatmap ---------- */
+const flagLbl={sem_oferta:'—',sem_meta:'∅',meta_sem_real:'0',falha_registro:'reg.'};
+const flagTxt={sem_oferta:'Sem oferta (previsto e realizado = 0)',sem_meta:'Sem meta, com realização',meta_sem_real:'Meta sem entrega (realizado = 0)',falha_registro:'Falha de registro regional (Brasil tem o total)'};
+let hmYear='med';let FOCUS=null;
+function median(a){a=[...a].sort((x,y)=>x-y);const n=a.length;if(!n)return null;return n%2?a[(n-1)/2]:(a[n/2-1]+a[n/2])/2}
+function drawHM(){
+ const cols=[...REG,'Brasil'];let h='<tr><th></th>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+ GROUPS.forEach(([g,inds])=>{h+=`<tr class="grp"><th colspan="7">${g}</th></tr>`;inds.forEach(i=>{h+=`<tr><th class="rl">${i}</th>`;cols.forEach(r=>{
+   if(hmYear==='med'){const xs=D.recs.filter(x=>x.r===r&&x.i===i&&x.a<=2025&&x.fl==='ok').map(x=>x.e);const m=median(xs);
+     if(m==null||xs.length<2){h+=`<td class="fl ${r==='Brasil'?'nat':''}" data-t="${i}|${r}|Base insuficiente">·</td>`;return}
+     const c=divColor(m);h+=`<td class="${r==='Brasil'?'nat':''}" style="background:${c.bg};color:${c.ink}" data-t="${i}|${r}|Mediana 2022–25: <b>${pf(m)}</b> (${xs.length} anos)">${pf(m)}</td>`;return}
+   const x=rec(+hmYear,r,i);if(!x){h+='<td></td>';return}
+   const pe=(r==='Nordeste'&&+hmYear===2026)?'<br><i>Ressalva: Pernambuco sem o 1º trimestre</i>':'';
+   const det=`Previsto: ${nf.format(x.p)}<br>Realizado: ${nf.format(x.v)}`;
+   if(x.fl!=='ok'){h+=`<td class="fl ${r==='Brasil'?'nat':''}" data-t="${i}|${r} · ${x.a}|${flagTxt[x.fl]}<br>${det}${pe}">${flagLbl[x.fl]}</td>`;return}
+   const c=divColor(x.e);h+=`<td class="${r==='Brasil'?'nat':''}" style="background:${c.bg};color:${c.ink}" data-t="${i}|${r} · ${x.a}|Execução: <b>${pf(x.e)}</b><br>${det}${pe}">${pf(x.e)}${r==='Nordeste'&&+hmYear===2026?'*':''}</td>`;
+ });h+='</tr>'})});
+ const t=document.getElementById('hm');t.innerHTML=h;applyFocus(t);
+ const n=document.getElementById('hm-note');
+ if(hmYear==='2026'){n.style.display='block';n.innerHTML='<b>2026:</b> ano corrente. Os valores do Nordeste (*) não contemplam integralmente o 1º trimestre do Departamento Regional de Pernambuco. Em 2026, a meta de Atendimentos em ações comunitárias foi zerada em todas as regiões, embora haja realização.'}
+ else if(hmYear==='med'){n.style.display='block';n.innerHTML='<b>Mediana 2022–25</b> considera só os anos com meta e entrega (exclui —, ∅, 0 e falhas de registro).'}
+ else n.style.display='none';
+}
+function bindCellTips(el){el.addEventListener('mousemove',e=>{const td=e.target.closest('td[data-t]');if(!td){hideTip();return}const [a,b,c]=td.dataset.t.split('|');showTip(e,`<b>${a}</b><br><span style="opacity:.75">${b}</span><br>${c}`)});el.addEventListener('mouseleave',hideTip)}
+(function(){const s=document.getElementById('hm-year');const opts=[['med','Mediana 22–25'],['2022','2022'],['2023','2023'],['2024','2024'],['2025','2025'],['2026','2026']];s.innerHTML=opts.map(o=>`<button data-v="${o[0]}" class="${o[0]===hmYear?'on':''}">${o[1]}</button>`).join('');s.onclick=e=>{const b=e.target.closest('button');if(!b)return;hmYear=b.dataset.v;s.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));drawHM()};drawHM();bindCellTips(document.getElementById('hm'))})();
+
+/* ---------- typology ---------- */
+const TY={'Gargalo crônico':['#dc3c3d','#fff','■ Crônico'],'Gargalo recorrente':['#f18a59','#18212f','◆ Recorrente'],'Instável':['#fbb315','#18212f','▲ Instável'],'Aderente':['#d9f2dd','#11651f','● Aderente'],'Superação moderada':['#b6d5f8','#0e3d7e','○ Superação'],'Meta subdimensionada':['#1b64be','#fff','◎ Meta baixa'],'Base insuficiente':['#eef0f3','#5b6677','· Insuf.']};
+(function(){
+ document.getElementById('ty-leg').innerHTML=Object.entries(TY).map(([k,v])=>`<span><i style="background:${v[0]}"></i>${k}</span>`).join('');
+ const counts={};REG.forEach(r=>counts[r]={});
+ let h='<tr><th></th>'+REG.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+ GROUPS.forEach(([g,inds])=>{h+=`<tr class="grp"><th colspan="6">${g}</th></tr>`;inds.forEach(i=>{h+=`<tr><th class="rl">${i}</th>`;REG.forEach(r=>{const t=D.typ.find(x=>x.regiao===r&&x.ind===i);
+   if(!t){h+=`<td class="fl" data-t="${i}|${r}|Sem oferta no período">—</td>`;return}
+   const v=TY[t.cls];counts[r][t.cls]=(counts[r][t.cls]||0)+1;
+   h+=`<td style="background:${v[0]};color:${v[1]}" data-t="${i}|${r}|<b>${t.cls}</b><br>Mediana: ${pf(t.med)} · Mín ${pf(t.mn??t.med)}<br>Anos < 90%: ${t.below} de ${t.n}<br>Volatilidade (dp ln): ${t.sd==null?'—':t.sd.toFixed(2).replace('.',',')}">${v[2]}</td>`});h+='</tr>'})});
+ h+='<tr class="grp"><th colspan="6">Resumo</th></tr><tr><th class="rl">Gargalos (crônico + recorrente)</th>'+REG.map(r=>`<td style="font-size:13px">${(counts[r]['Gargalo crônico']||0)+(counts[r]['Gargalo recorrente']||0)}</td>`).join('')+'</tr>';
+ h+='<tr><th class="rl">Meta subdimensionada</th>'+REG.map(r=>`<td style="font-size:13px">${counts[r]['Meta subdimensionada']||0}</td>`).join('')+'</tr>';
+ const t=document.getElementById('ty');t.innerHTML=h;bindCellTips(t);
+})();
+
+/* ---------- generic line chart ---------- */
+function lineChart(el,{series,years,yfmt,ymin,ymax,ref,h=280,ylog=false}){
+ const W=el.clientWidth||600,H=h,m={l:46,r:16,t:12,b:28};const iw=W-m.l-m.r,ih=H-m.t-m.b;
+ const x=i=>m.l+iw*(i/(years.length-1));const ty=v=>ylog?Math.log(v):v;const y0=ty(ymin),y1=ty(ymax);const y=v=>m.t+ih*(1-(ty(Math.max(ymin,Math.min(ymax,v)))-y0)/(y1-y0));
+ let s=`<svg class="chart" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">`;
+ const ticks=ylog?[0.25,0.5,1,2,4]:[0,.2,.4,.6,.8,1].map(v=>ymin+(ymax-ymin)*v);
+ ticks.filter(v=>v>=ymin&&v<=ymax).forEach(v=>{s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${m.l-8}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--text-3)">${yfmt(v)}</text>`});
+ if(ref!=null)s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(ref)}" y2="${y(ref)}" stroke="#9aa6b6" stroke-width="1.5"/><text x="${W-m.r}" y="${y(ref)-5}" text-anchor="end" font-size="10.5" fill="var(--text-secondary)">meta</text>`;
+ years.forEach((yr,i)=>s+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--text-3)">${yr}</text>`);
+ series.forEach(se=>{const pts=se.v.map((v,i)=>v==null?null:[x(i),y(v)]);let d='';let pen=false;pts.forEach(p=>{if(!p){pen=false;return}d+=(pen?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1);pen=true});
+   s+=`<path d="${d}" fill="none" stroke="${se.c}" stroke-width="${se.w||2}" stroke-linejoin="round" stroke-linecap="round"/>`;
+   pts.forEach(p=>{if(p)s+=`<circle cx="${p[0]}" cy="${p[1]}" r="${se.w>2?4:3.2}" fill="${se.c}" stroke="#fff" stroke-width="1.5"/>`});
+   const last=pts.map((p,i)=>[p,i]).filter(z=>z[0]).pop();});
+ s+=`<line class="xh" x1="0" x2="0" y1="${m.t}" y2="${m.t+ih}" stroke="#9aa6b6" stroke-width="1" style="display:none"/><rect x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent" class="hit"/></svg>`;
+ el.innerHTML=s;const svg=el.querySelector('svg'),hit=svg.querySelector('.hit'),xh=svg.querySelector('.xh');
+ hit.addEventListener('mousemove',e=>{const r=svg.getBoundingClientRect();const px=(e.clientX-r.left)*(W/r.width);const i=Math.round((px-m.l)/iw*(years.length-1));if(i<0||i>=years.length)return;xh.setAttribute('x1',x(i));xh.setAttribute('x2',x(i));xh.style.display='';
+   const rows=series.map(se=>({n:se.n,c:se.c,v:se.v[i]})).filter(r=>r.v!=null).sort((a,b)=>b.v-a.v);showTip(e,`<b>${years[i]}</b>`+rows.map(r=>`<div class="row"><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${r.c};margin-right:6px"></span>${r.n}</span><b>${yfmt(r.v)}</b></div>`).join(''))});
+ hit.addEventListener('mouseleave',()=>{xh.style.display='none';hideTip()});
+}
+function legendHTML(items){return items.map(([n,c,ln])=>`<span><i class="${ln?'ln':''}" style="background:${c}"></i>${n}</span>`).join('')}
+
+/* ---------- scatter ---------- */
+function drawScatter(){
+ const el=document.getElementById('ml-chart');const W=el.clientWidth||800,H=Math.min(460,Math.max(320,W*.5)),m={l:54,r:18,t:14,b:40};const iw=W-m.l-m.r,ih=H-m.t-m.b;
+ const lx=[0.1,30],ly=[0.05,10];const X=v=>m.l+iw*(Math.log(Math.max(lx[0],Math.min(lx[1],v)))-Math.log(lx[0]))/(Math.log(lx[1])-Math.log(lx[0]));const Y=v=>m.t+ih*(1-(Math.log(Math.max(ly[0],Math.min(ly[1],v)))-Math.log(ly[0]))/(Math.log(ly[1])-Math.log(ly[0])));
+ const sel=document.getElementById('ml-reg').value;
+ let s=`<svg class="chart" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">`;
+ s+=`<rect x="${X(1)}" y="${Y(1)}" width="${X(lx[1])-X(1)}" height="${Y(ly[0])-Y(1)}" fill="#fdf3ec"/><rect x="${m.l}" y="${m.t}" width="${X(1)-m.l}" height="${Y(1)-m.t}" fill="#fdf0f0"/>`;
+ [0.1,0.25,0.5,1,2,5,10,25].forEach(v=>{s+=`<line x1="${X(v)}" x2="${X(v)}" y1="${m.t}" y2="${m.t+ih}" stroke="var(--grid)"/><text x="${X(v)}" y="${H-22}" text-anchor="middle" font-size="11" fill="var(--text-3)">${pf(v)}</text>`});
+ [0.1,0.25,0.5,1,2,5,10].forEach(v=>{s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--grid)"/><text x="${m.l-8}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--text-3)">${v.toLocaleString('pt-BR')}×</text>`});
+ s+=`<line x1="${X(1)}" x2="${X(1)}" y1="${m.t}" y2="${m.t+ih}" stroke="#7d8898" stroke-width="1.5"/><line x1="${m.l}" x2="${W-m.r}" y1="${Y(1)}" y2="${Y(1)}" stroke="#7d8898" stroke-width="1.5"/>`;
+ s+=`<text x="${W-m.r-6}" y="${Y(ly[0])-8}" text-anchor="end" font-size="11.5" fill="#9a4a1c" font-weight="600">Superou → meta seguinte abaixo do entregue</text>`;
+ s+=`<text x="${m.l+6}" y="${m.t+16}" font-size="11.5" fill="#a42324" font-weight="600">Não entregou → meta seguinte ainda acima</text>`;
+ s+=`<text x="${m.l+iw/2}" y="${H-4}" text-anchor="middle" font-size="11.5" fill="var(--text-secondary)">Execução no ano t (log)</text><text transform="translate(13 ${m.t+ih/2}) rotate(-90)" text-anchor="middle" font-size="11.5" fill="var(--text-secondary)">Meta t+1 ÷ realizado t (log)</text>`;
+ const pts=[...D.ml].sort((a,b)=>(a.r===sel)-(b.r===sel));
+ pts.forEach((p,k)=>{const on=sel==='all'||p.r===sel;s+=`<circle data-k="${D.ml.indexOf(p)}" cx="${X(p.x)}" cy="${Y(p.y)}" r="${on?5:3.5}" fill="${on?'var(--s1)':'#c9d0da'}" fill-opacity="${on?.75:.6}" stroke="#fff" stroke-width="1.2"/>`});
+ s+='</svg>';el.innerHTML=s;
+ el.querySelector('svg').addEventListener('mousemove',e=>{const c=e.target.closest('circle[data-k]');if(!c){hideTip();return}const p=D.ml[+c.dataset.k];showTip(e,`<b>${p.i}</b><br>${p.r} · ${p.t} → ${p.t+1}<br>Execução ${p.t}: <b>${pf(p.x)}</b><br>Meta ${p.t+1} ÷ realizado ${p.t}: <b>${p.y.toLocaleString('pt-BR',{maximumFractionDigits:2})}×</b>`)});
+ el.querySelector('svg').addEventListener('mouseleave',hideTip);
+}
+(function(){const s=document.getElementById('ml-reg');s.innerHTML='<option value="all">Todas</option>'+REG.map(r=>`<option>${r}</option>`).join('');s.onchange=drawScatter})();
+
+function drawAll(){
+ if(document.getElementById('p-resumo').classList.contains('on'))drawAsym();
+ const yrs=[2022,2023,2024,2025,2026];
+ if(document.getElementById('p-assimetrias').classList.contains('on')){
+  document.getElementById('sc-leg').innerHTML=legendHTML(REG.map(r=>[r,RC[r],1]));
+  lineChart(document.getElementById('sc-chart'),{years:yrs,ymin:0,ymax:.8,yfmt:v=>pf(v),series:REG.map(r=>({n:r,c:RC[r],v:yrs.map(a=>{const x=D.sc.find(z=>z.regiao===r&&z.ano===a);return x?x.gb:null})}))});
+  document.getElementById('eja-leg').innerHTML=legendHTML([...REG,'Brasil'].map(r=>[r,RC[r],1]));
+  lineChart(document.getElementById('eja-chart'),{years:yrs,ymin:.7,ymax:1.7,ref:1,yfmt:v=>pf(v),series:[...REG,'Brasil'].map(r=>({n:r,c:RC[r],w:r==='Brasil'?3.5:2,v:yrs.map(a=>{const x=rec(a,r,'EJA');return x&&x.fl==='ok'?x.e:null})}))});
+ }
+ if(document.getElementById('p-metas').classList.contains('on'))drawScatter();
+}
+let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(drawAll,150)});
+
+
+/* ---------- resumo: asymmetric cases ---------- */
+function drawAsym(){
+ const Q=D.recs.filter(x=>x.a<=2025&&x.r!=='Brasil'&&x.fl==='ok');
+ document.getElementById('as-n').textContent=Q.length;
+ const c=k=>Q.filter(k).length;
+ const K=[[c(x=>x.e>=2),'casos com realizado ≥ 2× a meta',pf(c(x=>x.e>=2)/Q.length)+' do total'],[c(x=>x.e>=5),'casos com realizado ≥ 5× a meta','Promoção da saúde, Eventos educativos, Ações comunitárias'],[c(x=>x.e>=10),'casos com realizado ≥ 10× a meta','o máximo é 27,5× (Sudeste, 2023)'],[c(x=>x.e<0.6),'casos com realizado < 60% da meta','o mínimo é 9% (Sudeste, 2023)']];
+ document.getElementById('as-kpis').innerHTML=K.map(k=>`<div class="card kpi"><div class="v">${k[0]}</div><div class="l">${k[1]}</div><div class="d">${k[2]}</div></div>`).join('');
+ const vx=x=>x.e.toLocaleString('pt-BR',{maximumFractionDigits:1})+'×';
+ const row=x=>`<tr><td>${x.a}</td><td>${x.r}</td><td>${x.i}</td><td class="r">${nf.format(x.p)}</td><td class="r">${nf.format(x.v)}</td><td class="r"><b>${pf(x.e)}</b></td></tr>`;
+ const head='<tr><th>Ano</th><th>Região</th><th>Indicador</th><th class="r">Previsto</th><th class="r">Realizado</th><th class="r">Execução</th></tr>';
+ document.getElementById('as-top').innerHTML=head+[...Q].sort((a,b)=>b.e-a.e).slice(0,10).map(row).join('');
+ document.getElementById('as-bot').innerHTML=head+[...Q].sort((a,b)=>a.e-b.e).slice(0,10).map(row).join('');
+ // dot-range
+ const inds=GROUPS.flatMap(g=>g[1]);
+ const rows=inds.map(i=>{const m={};[...REG,'Brasil'].forEach(r=>{const xs=D.recs.filter(x=>x.r===r&&x.i===i&&x.a<=2025&&x.fl==='ok').map(x=>x.e);m[r]=xs.length>=2?median(xs):null});const rv=REG.map(r=>m[r]).filter(v=>v!=null);return{i,m,lo:Math.min(...rv),hi:Math.max(...rv),n:rv.length}}).filter(r=>r.n>=2).sort((a,b)=>b.hi/b.lo-a.hi/a.lo);
+ document.getElementById('dr-leg').innerHTML=legendHTML(REG.map(r=>[r,RC[r]]))+'<span><i style="background:#18212f;transform:rotate(45deg);width:10px;height:10px"></i>Brasil</span>';
+ const el=document.getElementById('dr-chart');const W=el.clientWidth||900,narrow=W<560,rh=30,m={l:narrow?130:200,r:16,t:24,b:28};const H=m.t+m.b+rows.length*rh;const iw=W-m.l-m.r;
+ const lo=0.2,hi=30;const X=v=>m.l+iw*(Math.log(Math.max(lo,Math.min(hi,v)))-Math.log(lo))/(Math.log(hi)-Math.log(lo));
+ let s=`<svg class="chart" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">`;
+ const ticks=narrow?[0.25,1,4,25]:[0.25,0.5,1,2,5,10,25];
+ ticks.forEach(v=>{s+=`<line x1="${X(v)}" x2="${X(v)}" y1="${m.t-6}" y2="${H-m.b}" stroke="var(--grid)"/><text x="${X(v)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--text-3)">${pf(v)}</text>`});
+ s+=`<line x1="${X(1)}" x2="${X(1)}" y1="${m.t-6}" y2="${H-m.b}" stroke="#7d8898" stroke-width="1.5"/><text x="${X(1)}" y="${m.t-10}" text-anchor="middle" font-size="10.5" fill="var(--text-secondary)">meta</text>`;
+ rows.forEach((r,k)=>{const y=m.t+k*rh+rh/2;
+  if(k%2===0)s+=`<rect x="0" y="${y-rh/2}" width="${W}" height="${rh}" fill="#f7f9fb"/>`;
+  s+=`<text x="${m.l-10}" y="${y+4}" text-anchor="end" font-size="12" fill="var(--text-primary)">${narrow&&r.i.length>18?r.i.slice(0,17)+'…':r.i}</text>`;
+  s+=`<line x1="${X(r.lo)}" x2="${X(r.hi)}" y1="${y}" y2="${y}" stroke="#c9d0da" stroke-width="2"/>`;
+  REG.forEach(g=>{const v=r.m[g];if(v==null)return;s+=`<circle cx="${X(v)}" cy="${y}" r="5.5" fill="${RC[g]}" stroke="#fff" stroke-width="2"/>`});
+  if(r.m.Brasil!=null){const bx=X(r.m.Brasil);s+=`<rect x="${bx-5}" y="${y-5}" width="10" height="10" fill="#18212f" stroke="#fff" stroke-width="1.5" transform="rotate(45 ${bx} ${y})"/>`}
+  s+=`<rect class="hr" data-k="${k}" x="0" y="${y-rh/2}" width="${W}" height="${rh}" fill="transparent"/>`;
+ });
+ s+='</svg>';el.innerHTML=s;
+ const svg=el.querySelector('svg');
+ svg.addEventListener('mousemove',e=>{const h=e.target.closest('.hr');if(!h){hideTip();return}const r=rows[+h.dataset.k];
+  const items=[...REG,'Brasil'].filter(g=>r.m[g]!=null).map(g=>({g,v:r.m[g]})).sort((a,b)=>b.v-a.v);
+  showTip(e,`<b>${r.i}</b><br><span style="opacity:.75">Mediana 2022–25 · maior/menor região: ${(r.hi/r.lo).toLocaleString('pt-BR',{maximumFractionDigits:1})}×</span>`+items.map(it=>`<div class="row"><span><span style="display:inline-block;width:8px;height:8px;border-radius:${it.g==='Brasil'?'1px':'50%'};background:${RC[it.g]};margin-right:6px"></span>${it.g}</span><b>${pf(it.v)}</b></div>`).join(''))});
+ svg.addEventListener('mouseleave',hideTip);
+}
+
+
+/* ---------- focus from conclusão ---------- */
+function applyFocus(t){const fb=document.getElementById('hm-focus');
+ if(!FOCUS){fb.style.display='none';return}
+ t.querySelectorAll('td[data-t]').forEach(td=>{const p=td.dataset.t.split('|');const i=p[0],r=p[1].split(' · ')[0];
+  const on=(FOCUS.cells||[]).includes(r+'|'+i)||(FOCUS.cols||[]).includes(r);td.classList.toggle('foc',on);td.classList.toggle('dim',!on)});
+ fb.style.display='block';fb.innerHTML='<b>Destaque:</b> '+FOCUS.label+'<button type="button" id="hm-clear">Limpar destaque</button>';
+ document.getElementById('hm-clear').onclick=()=>{FOCUS=null;drawHM()};
+}
+function setYear(v){hmYear=v;document.querySelectorAll('#hm-year button').forEach(b=>b.classList.toggle('on',b.dataset.v===v))}
+const PRIO=[
+ {r:'Norte',tag:['crit','Planejamento'],t:'Ações comunitárias e Empresas atendidas',txt:'Ações comunitárias com mediana de 34% e meta parada em ~180 mil (H3); a região responde por 94% do déficit nacional do indicador. Empresas atendidas com meta de 3 a 4 vezes o realizado em 2023–24 (H2). Primeira ação: recalibrar as metas e só depois avaliar execução.',links:[{y:'med',cells:['Norte|Atend. ações comunitárias','Norte|Pessoas em ações comunitárias','Norte|Empresas atendidas'],l:'Ver no mapa (mediana 22–25)'},{y:'2023',cells:['Norte|Atend. ações comunitárias','Norte|Empresas atendidas'],l:'Ver 2023',sec:1}]},
+ {r:'Nordeste',tag:['ser','Execução'],t:'EJA e Vacinas aplicadas',txt:'Dois gargalos crônicos: EJA com mediana de 86% e entrega estagnada em ~19 mil por ano, abaixo da meta; Vacinas com mediana de 77% e 46% em 2023. A região concentra 67% do déficit nacional de EJA. É o caso mais claro de limite de entrega (H4). Os dados de 2026 não incluem todo o 1º trimestre de Pernambuco.',links:[{y:'med',cells:['Nordeste|EJA','Nordeste|Vacinas aplicadas'],l:'Ver no mapa (mediana 22–25)'},{y:'2023',cells:['Nordeste|Vacinas aplicadas'],l:'Ver Vacinas em 2023',sec:1}]},
+ {r:'Centro-Oeste',tag:['crit','Execução + alerta 2026'],t:'Vacinas, EJA e queda geral em 2026',txt:'Vacinas é gargalo crônico (mediana de 78%) e EJA é recorrente (88%). Em 2026, 79% dos indicadores da região ficaram abaixo de 90%, com queda simultânea em educação, cultura e empresas: sinal de causa institucional, a confirmar quando o ano fechar.',links:[{y:'med',cells:['Centro-Oeste|Vacinas aplicadas','Centro-Oeste|EJA'],l:'Ver no mapa (mediana 22–25)'},{y:'2026',cols:['Centro-Oeste'],l:'Ver a região em 2026',sec:1}]},
+ {r:'Sul',tag:['crit','Planejamento'],t:'Eventos educativos, Empréstimos de acervo e Espectadores',txt:'Eventos educativos com mediana de 44%, depois meta cortada e zerada; Empréstimos de acervo com mediana de 71% e depois meta zerada com entrega de 100 mil (H3). Espectadores de cultura é gargalo recorrente (90%).',links:[{y:'med',cells:['Sul|Eventos educativos','Sul|Empréstimos de acervo','Sul|Espectadores de cultura'],l:'Ver no mapa (mediana 22–25)'},{y:'2025',cells:['Sul|Eventos educativos','Sul|Empréstimos de acervo'],l:'Ver 2025',sec:1}]},
+ {r:'Sudeste e Sul',tag:['blue','Recalibração'],t:'Metas subdimensionadas',txt:'Não são regiões com mau desempenho, mas com metas muito abaixo da entrega: Eventos educativos no Sudeste (27×) e Promoção da saúde no Sudeste e no Sul (4× a 15×). Sem recalibrar, essas superações compensam no consolidado os gargalos das outras regiões (H1).',links:[{y:'med',cells:['Sudeste|Eventos educativos','Sudeste|Benef. promoção da saúde','Sul|Benef. promoção da saúde'],l:'Ver no mapa (mediana 22–25)'}]}
+];
+(function(){
+ const el=document.getElementById('prio');
+ el.innerHTML=PRIO.map((p,k)=>`<div class="card case"><div class="hd"><div><div class="ttl">${p.r}</div><div class="sub">${p.t}</div></div><span class="tag ${p.tag[0]}">${p.tag[1]}</span></div><p class="read small">${p.txt}</p><div>${p.links.map((l,j)=>`<a href="#mapa" class="golink ${l.sec?'sec':''}" data-k="${k}" data-j="${j}">${l.l} →</a>`).join(' ')}</div></div>`).join('');
+ el.addEventListener('click',e=>{const a=e.target.closest('.golink');if(!a)return;e.preventDefault();const p=PRIO[+a.dataset.k],l=p.links[+a.dataset.j];
+  FOCUS={cells:l.cells,cols:l.cols,label:p.r+' · '+p.t+' ('+(l.y==='med'?'mediana 2022–25':l.y)+')'};setYear(l.y);
+  if(location.hash==='#mapa')go('mapa');else location.hash='mapa';drawHM();
+  setTimeout(()=>{const c=document.querySelector('#hm td.foc');const f=document.getElementById('hm-focus');(f||c).scrollIntoView({behavior:'smooth',block:'start'})},60)});
+})();
+
+/* ---------- explorer ---------- */
+(function(){
+ const R=document.getElementById('ex-r'),I=document.getElementById('ex-i'),A=document.getElementById('ex-a');
+ R.innerHTML='<option value="">Todas as regiões</option>'+[...REG,'Brasil'].map(r=>`<option>${r}</option>`).join('');
+ I.innerHTML='<option value="">Todos os indicadores</option>'+GROUPS.flatMap(g=>g[1]).map(i=>`<option>${i}</option>`).join('');
+ A.innerHTML='<option value="">Todos os anos</option>'+[2022,2023,2024,2025,2026].map(a=>`<option>${a}</option>`).join('');
+ let sk='e',sd=1;const cols=[['a','Ano'],['r','Região'],['g','Grupo'],['i','Indicador'],['p','Previsto','r'],['v','Realizado','r'],['e','Execução','r'],['fl','Situação']];
+ const flN={ok:'OK',...flagTxt};
+ function draw(){let rows=D.recs.filter(x=>(!R.value||x.r===R.value)&&(!I.value||x.i===I.value)&&(!A.value||x.a===+A.value));
+  rows.sort((a,b)=>{const va=a[sk],vb=b[sk];if(va==null)return 1;if(vb==null)return -1;return (va>vb?1:va<vb?-1:0)*sd});
+  document.getElementById('ex-n').textContent=rows.length+' linhas';
+  document.getElementById('ex').innerHTML='<tr>'+cols.map(c=>`<th class="${c[2]||''}" data-k="${c[0]}">${c[1]}${sk===c[0]?(sd>0?' ↑':' ↓'):''}</th>`).join('')+'</tr>'+rows.map(x=>`<tr><td>${x.a}</td><td>${x.r}</td><td>${x.g}</td><td>${x.i}</td><td class="r">${nf.format(x.p)}</td><td class="r">${nf.format(x.v)}</td><td class="r">${x.fl==='ok'?pf1(x.e):'—'}</td><td class="small muted">${flN[x.fl]}${x.r==='Nordeste'&&x.a===2026?' · Pernambuco sem o 1º trimestre':''}</td></tr>`).join('');
+ }
+ document.getElementById('ex').addEventListener('click',e=>{const th=e.target.closest('th');if(!th)return;const k=th.dataset.k;if(sk===k)sd=-sd;else{sk=k;sd=1}draw()});
+ [R,I,A].forEach(s=>s.onchange=draw);draw();
+})();
+
+go(location.hash.slice(1)||'resumo');
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
